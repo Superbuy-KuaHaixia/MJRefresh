@@ -11,8 +11,6 @@
 #import "MJRefreshConst.h"
 #import "UIView+MJExtension.h"
 #import "UIScrollView+MJRefresh.h"
-NSString *const KHXLanguageChangedNotification = @"KHXLanguageChangedNotification";
-NSString *const KHXLocalizedIdentifier = @"KHXLocalizedIdentifier";
 #define Language_CN @"cn"
 
 @interface MJRefreshComponent()
@@ -95,7 +93,7 @@ NSString *const KHXLocalizedIdentifier = @"KHXLocalizedIdentifier";
     [self.scrollView addObserver:self forKeyPath:MJRefreshKeyPathContentSize options:options context:nil];
     self.pan = self.scrollView.panGestureRecognizer;
     [self.pan addObserver:self forKeyPath:MJRefreshKeyPathPanState options:options context:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(languageChanged) name:KHXLanguageChangedNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(languageChanged) name:@"KHXLanguageChangedNotification" object:nil];
 }
 
 - (void)removeObservers
@@ -104,7 +102,7 @@ NSString *const KHXLocalizedIdentifier = @"KHXLocalizedIdentifier";
     [self.superview removeObserver:self forKeyPath:MJRefreshKeyPathContentSize];;
     [self.pan removeObserver:self forKeyPath:MJRefreshKeyPathPanState];
     self.pan = nil;
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:KHXLanguageChangedNotification object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:@"KHXLanguageChangedNotification" object:nil];
 }
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
@@ -154,7 +152,7 @@ static NSBundle *bundle = nil;
         NSString *bundlePath = [[NSBundle mainBundle] pathForResource:@"MJRefresh" ofType:@"bundle"];
         
         bundle = [NSBundle bundleWithPath:bundlePath];
-        NSString *language = [[NSUserDefaults standardUserDefaults] objectForKey:KHXLocalizedIdentifier];
+        NSString *language = [[NSUserDefaults standardUserDefaults] objectForKey:@"KHXLocalizedIdentifier"];
         if(!language){
             language = [[NSLocale preferredLanguages] count]? [NSLocale preferredLanguages][0]: @"en";
         }

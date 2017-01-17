@@ -11,7 +11,9 @@
 #import "MJRefreshConst.h"
 #import "UIView+MJExtension.h"
 #import "UIScrollView+MJRefresh.h"
-#import "KHXLocalized.h"
+NSString *const KHXLanguageChangedNotification = @"KHXLanguageChangedNotification";
+NSString *const KHXLocalizedIdentifier = @"KHXLocalizedIdentifier";
+#define Language_CN @"cn"
 
 @interface MJRefreshComponent()
 @property (strong, nonatomic) UIPanGestureRecognizer *pan;
@@ -152,8 +154,10 @@ static NSBundle *bundle = nil;
         NSString *bundlePath = [[NSBundle mainBundle] pathForResource:@"MJRefresh" ofType:@"bundle"];
         
         bundle = [NSBundle bundleWithPath:bundlePath];
-        NSString *language = [[NSLocale preferredLanguages] count]? [NSLocale preferredLanguages][0]: @"en";
-        language = [KHXLocalized getCurrentLanguageCode];
+        NSString *language = [[NSUserDefaults standardUserDefaults] objectForKey:KHXLocalizedIdentifier];
+        if(!language){
+            language = [[NSLocale preferredLanguages] count]? [NSLocale preferredLanguages][0]: @"en";
+        }
         if ([language isEqualToString:Language_CN]) {
             bundlePath = [bundle pathForResource:@"zh-Hans" ofType:@"lproj"];
         }else {

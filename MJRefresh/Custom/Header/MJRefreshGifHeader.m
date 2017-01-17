@@ -160,7 +160,7 @@
         self.gifView.contentMode = UIViewContentModeRight;
         self.gifView.mj_w = self.mj_w * 0.5 - 30;
         self.stateLabel.textAlignment = NSTextAlignmentLeft;
-        self.stateLabel.mj_x = self.gifView.x + self.gifView.mj_w + 10;
+        self.stateLabel.mj_x = self.gifView.mj_x + self.gifView.mj_w + 10;
     }
     
 }

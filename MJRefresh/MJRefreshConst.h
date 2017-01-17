@@ -24,15 +24,19 @@
 #define MJRefreshColor(r, g, b) [UIColor colorWithRed:(r)/255.0 green:(g)/255.0 blue:(b)/255.0 alpha:1.0]
 
 // 文字颜色
-#define MJRefreshLabelTextColor MJRefreshColor(90, 90, 90)
+#define MJRefreshLabelTextColor MJRefreshColor(120, 120, 120)
 
 // 字体大小
 #define MJRefreshLabelFont [UIFont boldSystemFontOfSize:14]
 
+// 图片路径
+#define MJRefreshSrcName(file) [@"MJRefresh.bundle" stringByAppendingPathComponent:file]
+#define MJRefreshFrameworkSrcName(file) [@"Frameworks/MJRefresh.framework/MJRefresh.bundle" stringByAppendingPathComponent:file]
+
 // 常量
-UIKIT_EXTERN const CGFloat MJRefreshLabelLeftInset;
 UIKIT_EXTERN const CGFloat MJRefreshHeaderHeight;
 UIKIT_EXTERN const CGFloat MJRefreshFooterHeight;
+UIKIT_EXTERN const CGFloat MJRefreshHeaderViewOffsetY;
 UIKIT_EXTERN const CGFloat MJRefreshFastAnimationDuration;
 UIKIT_EXTERN const CGFloat MJRefreshSlowAnimationDuration;
 
@@ -46,6 +50,7 @@ UIKIT_EXTERN NSString *const MJRefreshHeaderLastUpdatedTimeKey;
 UIKIT_EXTERN NSString *const MJRefreshHeaderIdleText;
 UIKIT_EXTERN NSString *const MJRefreshHeaderPullingText;
 UIKIT_EXTERN NSString *const MJRefreshHeaderRefreshingText;
+UIKIT_EXTERN NSString *const MJRefreshHeaderBackgroundText;
 
 UIKIT_EXTERN NSString *const MJRefreshAutoFooterIdleText;
 UIKIT_EXTERN NSString *const MJRefreshAutoFooterRefreshingText;

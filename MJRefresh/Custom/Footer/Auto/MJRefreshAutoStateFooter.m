@@ -30,10 +30,21 @@
 - (UILabel *)stateLabel
 {
     if (!_stateLabel) {
+        _stateLabel.numberOfLines = 1;
         [self addSubview:_stateLabel = [UILabel mj_label]];
     }
     return _stateLabel;
 }
+
+- (UIImageView *)nomoreImageView {
+    if (!_nomoreImageView) {
+        _nomoreImageView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"prompt_icon_nomore_normal"]];
+        _nomoreImageView.hidden = YES;
+        [self addSubview:_nomoreImageView];
+    }
+    return _nomoreImageView;
+}
+
 
 #pragma mark - 公共方法
 - (void)setTitle:(NSString *)title forState:(MJRefreshState)state
@@ -56,13 +67,10 @@
 {
     [super prepare];
     
-    // 初始化间距
-    self.labelLeftInset = MJRefreshLabelLeftInset;
-    
     // 初始化文字
-    [self setTitle:[NSBundle mj_localizedStringForKey:MJRefreshAutoFooterIdleText] forState:MJRefreshStateIdle];
-    [self setTitle:[NSBundle mj_localizedStringForKey:MJRefreshAutoFooterRefreshingText] forState:MJRefreshStateRefreshing];
-    [self setTitle:[NSBundle mj_localizedStringForKey:MJRefreshAutoFooterNoMoreDataText] forState:MJRefreshStateNoMoreData];
+    [self setTitle:[self localizedStringForKey:MJRefreshAutoFooterIdleText] forState:MJRefreshStateIdle];
+    [self setTitle:[self localizedStringForKey:MJRefreshAutoFooterRefreshingText] forState:MJRefreshStateRefreshing];
+    [self setTitle:[self localizedStringForKey:MJRefreshAutoFooterNoMoreDataText] forState:MJRefreshStateNoMoreData];
     
     // 监听label
     self.stateLabel.userInteractionEnabled = YES;
@@ -75,8 +83,6 @@
     
     if (self.stateLabel.constraints.count) return;
     
-    // 状态标签
-    self.stateLabel.frame = self.bounds;
 }
 
 - (void)setState:(MJRefreshState)state
@@ -85,8 +91,17 @@
     
     if (self.isRefreshingTitleHidden && state == MJRefreshStateRefreshing) {
         self.stateLabel.text = nil;
+        self.nomoreImageView.hidden = YES;
     } else {
         self.stateLabel.text = self.stateTitles[@(state)];
+        if (state == MJRefreshStateNoMoreData) {
+            self.nomoreImageView.hidden = NO;
+            CGFloat width = [self.stateLabel.text boundingRectWithSize:CGSizeMake(self.bounds.size.width, self.bounds.size.height) options:NSStringDrawingUsesLineFragmentOrigin|NSStringDrawingUsesFontLeading attributes:@{NSFontAttributeName:MJRefreshLabelFont} context:nil].size.width;
+            self.nomoreImageView.frame = CGRectMake((self.bounds.size.width - width - 30) * 0.5, self.bounds.size.height * 0.5 - 10, 20, 20);
+            self.stateLabel.frame = CGRectMake(self.nomoreImageView.frame.origin.x + 30, 0, width, self.bounds.size.height);
+        }else {
+            self.stateLabel.frame = self.bounds;
+        }
     }
 }
 @end

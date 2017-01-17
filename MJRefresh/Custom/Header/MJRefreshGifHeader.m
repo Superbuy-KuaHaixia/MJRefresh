@@ -8,6 +8,37 @@
 
 #import "MJRefreshGifHeader.h"
 
+@interface MJGifView : UIView
+@property (nonatomic, assign) CGFloat progress;
+@property (nonatomic, assign) CGFloat startAngle;
+@property (nonatomic, assign) CGFloat endAngle;
+@end
+@implementation MJGifView
+- (instancetype)initWithFrame:(CGRect)frame {
+    if (self = [super initWithFrame:frame]) {
+        self.backgroundColor = [UIColor clearColor];
+    }
+    return self;
+}
+- (void)drawRect:(CGRect)rect {
+    self.startAngle = self.endAngle = 3 * M_PI_2;
+    self.endAngle += self.progress * 2 * M_PI;
+    CGContextRef ctx = UIGraphicsGetCurrentContext();
+    CGContextSetLineWidth(ctx, 2.0);
+    CGContextSetRGBStrokeColor(ctx, 153.0/255, 153.0/255, 153.0/255, 1.0);
+    CGFloat centerX = 0, centerY = 0, radius = 0;
+    if (self.subviews.count) {
+        UIView *view = self.subviews[0];
+        radius = 15;
+        centerX = view.mj_w - radius;
+        centerY = view.mj_h * 0.5 - radius * 0.5 + 8;
+    }
+    CGContextAddArc(ctx, centerX, centerY, radius, self.startAngle, self.endAngle, 0);
+    CGContextStrokePath(ctx);
+    self.startAngle = self.endAngle;
+}
+@end
+
 @interface MJRefreshGifHeader()
 {
     __unsafe_unretained UIImageView *_gifView;
@@ -22,14 +53,35 @@
 #pragma mark - 懒加载
 - (UIImageView *)gifView
 {
-    if (!_gifView) { 
-        UIImageView *gifView = [[UIImageView alloc] init]; 
-        [self addSubview:_gifView = gifView]; 
+    if (!_gifView) {
+        CGFloat width = [UIScreen mainScreen].bounds.size.height;
+        MJGifView *gifView = [[MJGifView alloc] initWithFrame:CGRectMake(0, MJRefreshHeaderViewOffsetY, width, MJRefreshHeaderHeight - MJRefreshHeaderViewOffsetY)];
+        UIImageView *imgView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, gifView.mj_w, gifView.mj_h)];
+        [gifView addSubview:(_gifView = imgView)];
+        [self addSubview:gifView];
     } 
-    return _gifView; 
+    return _gifView;
 }
 
-- (NSMutableDictionary *)stateImages 
+- (void)scrollViewContentOffsetDidChange:(NSDictionary *)change {
+    [super scrollViewContentOffsetDidChange:change];
+    if (self.state == MJRefreshStateIdle && self.pullingPercent <= 1.0) {
+        if ([self.gifView.superview isKindOfClass:[MJGifView class]]) {
+            MJGifView *view = (MJGifView *)self.gifView.superview;
+            view.progress = self.pullingPercent;
+            [view setNeedsDisplay];
+        }
+    }
+    if (self.state == MJRefreshStateRefreshing && self.pullingPercent >= 1.0) {
+        if ([self.gifView.superview isKindOfClass:[MJGifView class]]) {
+            MJGifView *view = (MJGifView *)self.gifView.superview;
+            view.progress = 0;
+            [view setNeedsDisplay];
+        }
+    }
+}
+
+- (NSMutableDictionary *)stateImages
 { 
     if (!_stateImages) { 
         self.stateImages = [NSMutableDictionary dictionary]; 
@@ -43,6 +95,19 @@
         self.stateDurations = [NSMutableDictionary dictionary]; 
     } 
     return _stateDurations; 
+}
+
+- (UILabel *)backLabel
+{
+    if (!_backLabel) {
+        UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, [UIScreen mainScreen].bounds.size.width, 42)];
+        label.font = [UIFont systemFontOfSize:20];
+        label.textColor = [UIColor colorWithRed:204/255.0 green:204/255.0 blue:204/255.0 alpha:1];
+        label.textAlignment = NSTextAlignmentCenter;
+        label.text = [self localizedStringForKey:MJRefreshHeaderBackgroundText];
+        [self addSubview:(_backLabel = label)];
+    }
+    return _backLabel;
 }
 
 #pragma mark - 公共方法
@@ -66,14 +131,6 @@
 }
 
 #pragma mark - 实现父类的方法
-- (void)prepare
-{
-    [super prepare];
-    
-    // 初始化间距
-    self.labelLeftInset = 20;
-}
-
 - (void)setPullingPercent:(CGFloat)pullingPercent
 {
     [super setPullingPercent:pullingPercent];
@@ -90,23 +147,22 @@
 - (void)placeSubviews
 {
     [super placeSubviews];
-    
+    BOOL noConstrainsOnStatusLabel = self.stateLabel.constraints.count == 0;
+    if (noConstrainsOnStatusLabel) {
+        CGRect frame = self.stateLabel.frame;
+        self.stateLabel.frame = CGRectMake(frame.origin.x, frame.origin.y + MJRefreshHeaderViewOffsetY, frame.size.width, MJRefreshHeaderHeight - MJRefreshHeaderViewOffsetY);
+    }
     if (self.gifView.constraints.count) return;
-    
-    self.gifView.frame = self.bounds;
+    self.gifView.frame = CGRectMake(0, 0, self.mj_w, MJRefreshHeaderHeight - MJRefreshHeaderViewOffsetY);
     if (self.stateLabel.hidden && self.lastUpdatedTimeLabel.hidden) {
         self.gifView.contentMode = UIViewContentModeCenter;
     } else {
         self.gifView.contentMode = UIViewContentModeRight;
-        
-        CGFloat stateWidth = self.stateLabel.mj_textWith;
-        CGFloat timeWidth = 0.0;
-        if (!self.lastUpdatedTimeLabel.hidden) {
-            timeWidth = self.lastUpdatedTimeLabel.mj_textWith;
-        }
-        CGFloat textWidth = MAX(stateWidth, timeWidth);
-        self.gifView.mj_w = self.mj_w * 0.5 - textWidth * 0.5 - self.labelLeftInset;
+        self.gifView.mj_w = self.mj_w * 0.5 - 30;
+        self.stateLabel.textAlignment = NSTextAlignmentLeft;
+        self.stateLabel.mj_x = self.gifView.x + self.gifView.mj_w + 10;
     }
+    
 }
 
 - (void)setState:(MJRefreshState)state
@@ -129,5 +185,6 @@
     } else if (state == MJRefreshStateIdle) {
         [self.gifView stopAnimating];
     }
+    [self placeSubviews];
 }
 @end

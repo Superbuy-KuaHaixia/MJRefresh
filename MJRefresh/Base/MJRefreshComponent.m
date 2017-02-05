@@ -156,7 +156,7 @@ static NSBundle *bundle = nil;
         if(!language){
             language = [[NSLocale preferredLanguages] count]? [NSLocale preferredLanguages][0]: @"en";
         }
-        if ([language isEqualToString:Language_CN]) {
+        if ([language isEqualToString:Language_CN] || [language isEqualToString:@"zh-Hans-CN"]) {
             bundlePath = [bundle pathForResource:@"zh-Hans" ofType:@"lproj"];
         }else {
             bundlePath = [bundle pathForResource:@"en" ofType:@"lproj"];

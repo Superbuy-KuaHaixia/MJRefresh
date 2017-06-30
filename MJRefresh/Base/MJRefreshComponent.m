@@ -152,6 +152,11 @@ static NSBundle *bundle = nil;
         NSString *bundlePath = [[NSBundle mainBundle] pathForResource:@"MJRefresh" ofType:@"bundle"];
         
         bundle = [NSBundle bundleWithPath:bundlePath];
+        if (!bundle) {
+            bundlePath = [[NSBundle mainBundle] pathForResource:@"Frameworks/MJRefresh.framework/MJRefresh" ofType:@"bundle"];
+            bundle = [NSBundle bundleWithPath:bundlePath];
+        }
+        
         NSString *language = [[NSUserDefaults standardUserDefaults] objectForKey:@"KHXLocalizedIdentifier"];
         if(!language){
             language = [[NSLocale preferredLanguages] count]? [NSLocale preferredLanguages][0]: @"en";

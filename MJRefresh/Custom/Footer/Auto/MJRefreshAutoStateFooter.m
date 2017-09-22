@@ -38,7 +38,7 @@
 
 - (UIImageView *)nomoreImageView {
     if (!_nomoreImageView) {
-        _nomoreImageView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"prompt_icon_nomore_normal"]];
+        _nomoreImageView = [[UIImageView alloc] initWithImage:([UIImage imageNamed:MJRefreshSrcName(@"icon_nomore_data")] ?: [UIImage imageNamed:MJRefreshFrameworkSrcName(@"icon_nomore_data")])];
         _nomoreImageView.hidden = YES;
         [self addSubview:_nomoreImageView];
     }
@@ -101,6 +101,7 @@
             self.stateLabel.frame = CGRectMake(self.nomoreImageView.frame.origin.x + 30, 0, width, self.bounds.size.height);
         }else {
             self.stateLabel.frame = self.bounds;
+            self.nomoreImageView.hidden = YES;
         }
     }
 }
